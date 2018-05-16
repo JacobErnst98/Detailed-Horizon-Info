@@ -1,8 +1,10 @@
 <#
 .SYNOPSIS
  Provides detailed Vdi informain about Horizon VMs
+ This is the faster version of the script that does not show all data that the non speedy branch offers.
+ But this script takes 20 minutes to run rather than 2 hours.
 .DESCRIPTION
-  Gets Computer, DNSname, User, Pool ,HVConnectionState, ProvisionedSpaceGB, UsedSpaceGB, PowerState, VMHost, SamAccountName, Clamed, Entitled, Reason_Entitled, DesktoplastLogin, UserlastLogin 
+  Gets Computer, DNSname, User, Pool ,HVConnectionState, SamAccountName, Clamed, Entitled, Reason_Entitled, DesktoplastLogin, UserlastLogin NOTE: this verson does not provide {ProvisionedSpaceGB, UsedSpaceGB, PowerState, VMHost}
 .INPUTS
   None
 .OUTPUTS
@@ -10,15 +12,14 @@
 .NOTES
 
   INFO
-    Version:        1.1 
+    Version:        1.1b
     Author:         Jacob Ernst
-    Modification Date:  4/17/2018
-    Purpose/Change: Sanitise for git
+    Modification Date:  5/16/2018
+    Purpose/Change: Make speedy branch
     Modules:        Vmware* (PowerCLI), HV-Helper Get-Help User_Vm_Lookup.ps1 -online for this module link if it is not provided
     Required Files: CSV of horizon entitlments (See readme.md)
 
   TODO
-   Speed up script (Currently takes an hour and a half to run on a 2200 Vm HV6 Enviorment )
    Generate Entitlments CSV inside script
 
 .LINK
@@ -73,18 +74,12 @@ $people = @()
 $i = 0
 Write-Progress -Activity "Working..." `   -PercentComplete 0 -CurrentOperation   "0% complete" `   -Status "Please wait."
 Foreach($PC in $vmsSimpl){
-$vcdata = get-vm $pc.Computer
 $tlo = New-Object -TypeName psobject 
         $tlo | Add-Member -MemberType NoteProperty -Name Computer -Value $pc.Computer
         $tlo | Add-Member -MemberType NoteProperty -Name DNSname -Value $pc.dns
         $tlo | Add-Member -MemberType NoteProperty -Name User -Value $PC.User
         $tlo | Add-Member -MemberType NoteProperty -Name Pool -Value $pc.pool
         $tlo | Add-Member -MemberType NoteProperty -Name HVConnectionState -Value $PC.BasicState
-        $tlo | Add-Member -MemberType NoteProperty -Name ProvisionedSpaceGB -Value $vcdata.ProvisionedSpaceGB
-        $tlo | Add-Member -MemberType NoteProperty -Name UsedSpaceGB -Value $vcdata.UsedSpaceGB
-        $tlo | Add-Member -MemberType NoteProperty -Name PowerState -Value $vcdata.PowerState
-        $tlo | Add-Member -MemberType NoteProperty -Name VMHost -Value $vcdata.VMHost
-
         $tlo | Add-Member -MemberType NoteProperty -Name SamAccountName -Value $(if($PC.User -eq $null ){ 
         
         "N/a" ; $InAd = "N/a"
